@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Tools Suite</title>
+  <style>
+    :root {
+      --primary: #4a90e2;
+      --secondary: #f4f7fb;
+      --text-color: #1e1e1e;
+      --card-bg: #ffffff;
+      --border-color: #d1d5db;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 12px;
+      --btn-blue: #4a90e2;
+      --btn-green: #4caf50;
+      --btn-red: #e53935;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--secondary);
+      color: var(--text-color);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    h1, h2 { text-align: center; color: var(--primary); }
+    textarea, select, input[type="datetime-local"], button {
+      width: 100%; padding: 0.75rem; font-size: 1rem;
+      margin-top: 1rem; border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .btn {
+      color: white; border: none;
+      margin-top: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn-blue { background-color: var(--btn-blue); }
+    .btn-blue:hover { background-color: #357abd; }
+    .btn-green { background-color: var(--btn-green); }
+    .btn-green:hover { background-color: #3e8e41; }
+    .btn-red { background-color: var(--btn-red); }
+    .btn-red:hover { background-color: #c62828; }
+    .tool-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+    }
+    .output-box {
+      background: var(--card-bg);
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-family: monospace;
+      font-size: 1rem;
+      margin-top: 1rem;
+      white-space: pre-wrap;
+      box-shadow: var(--shadow);
+    }
+  </style>
+</head>
+<body>
+  <h1>Model Tools Suite ⚙️</h1>
+
+  <div class="tool-block">
+    <h2>Net Calculator (Filtered by Time)</h2>
+    <label for="startDateTime"><strong>Start Time:</strong></label>
+    <input type="datetime-local" id="startDateTime" />
+
+    <label for="endDateTime"><strong>End Time:</strong></label>
+    <input type="datetime-local" id="endDateTime" />
+
+    <label for="logInput">Paste Logs:</label>
+    <textarea id="logInput" placeholder="Paste logs here..."></textarea>
+
+    <button class="btn btn-green" onclick="calculateNetTimeFiltered()">Calculate</button>
+    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy</button>
+
+    <div id="timeFilteredResult" class="output-box">0.00</div>
+
+    <button class="btn btn-red" onclick="clearLogOnly()">Clear</button>
+  </div>
+
+  <script>
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).textContent.trim();
+      navigator.clipboard.writeText(text);
+    }
+
+    function clearLogOnly() {
+      document.getElementById("logInput").value = "";
+      document.getElementById("timeFilteredResult").textContent = "0.00";
+    }
+
+    function getDate(prefix) {
+      const input = document.getElementById(prefix + "DateTime");
+      return new Date(input.value);
+    }
+
+    function parseDate(line) {
+      const match = line.match(/([A-Za-z]{2,}) (\d{1,2}),\s*(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)/i);
+      if (!match) return null;
+
+      const [ , monthStr, day, year, hourStr, minuteStr, ampm ] = match;
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+      function levenshtein(a, b) {
+        const dp = Array.from({length: b.length + 1}, (_, i) => [i]);
+        dp[0] = Array.from({length: a.length + 1}, (_, j) => j);
+        for (let i = 1; i <= b.length; i++) {
+          for (let j = 1; j <= a.length; j++) {
+            dp[i][j] = b[i - 1] === a[j - 1]
+              ? dp[i - 1][j - 1]
+              : Math.min(dp[i - 1][j - 1], dp[i][j - 1], dp[i - 1][j]) + 1;
+          }
+        }
+        return dp[b.length][a.length];
+      }
+
+      function getClosestMonthIndex(input) {
+        input = input.toLowerCase();
+        let bestIndex = -1;
+        let bestScore = Infinity;
+        months.forEach((mon, idx) => {
+          const score = levenshtein(input, mon.toLowerCase());
+          if (score < bestScore) {
+            bestScore = score;
+            bestIndex = idx;
+          }
+        });
+        return bestScore <= 2 ? bestIndex : -1;
+      }
+
+      const monthIndex = getClosestMonthIndex(monthStr);
+      if (monthIndex === -1) return null;
+
+      let hour = parseInt(hourStr);
+      const minute = parseInt(minuteStr);
+      if (ampm.toLowerCase() === "pm" && hour !== 12) hour += 12;
+      if (ampm.toLowerCase() === "am" && hour === 12) hour = 0;
+
+      return new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
+    }
+
+    function calculateNetTimeFiltered() {
+      const logLines = document.getElementById("logInput").value.trim().split("\n");
+      const start = getDate("start");
+      const end = getDate("end");
+
+      let total = 0;
+      for (let i = 0; i < logLines.length; i++) {
+        const date = parseDate(logLines[i]);
+        if (date && date >= start && date <= end) {
+          const grossLine = logLines[i + 1];
+          const netLine = logLines[i + 3];
+          const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
+          const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
+          if (grossMatch && netMatch) {
+            const gross = parseFloat(grossMatch[1]);
+            const net = parseFloat(netMatch[1]);
+            const is99 = gross.toFixed(2).endsWith(".99");
+            const under100 = gross < 100;
+            if (!(is99 && under100)) {
+              total += net;
+            }
+          }
+        }
+      }
+      document.getElementById("timeFilteredResult").textContent = total.toFixed(2);
+    }
+  </script>
+</body>
+</html>
