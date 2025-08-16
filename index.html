@@ -75,14 +75,14 @@
 <body>
   <h1>Model Tools Suite ⚙️</h1>
 
-<div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
-  <a href="https://model-aligner.vercel.app/" target="_blank">
-    <button class="btn btn-blue">Open Model Aligner</button>
-  </a>
-  <a href="https://admin-admin-lma.vercel.app/" target="_blank">
-    <button class="btn btn-red">Open Old Calculator</button>
-  </a>
-</div>
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
+    <a href="https://model-aligner.vercel.app/" target="_blank">
+      <button class="btn btn-blue">Open Model Aligner</button>
+    </a>
+    <a href="https://admin-admin-lma.vercel.app/" target="_blank">
+      <button class="btn btn-red">Open Old Calculator</button>
+    </a>
+  </div>
 
   <div class="tool-block">
     <h2>Net Calculator (Filtered by Time)</h2>
@@ -96,9 +96,14 @@
     <textarea id="logInput" placeholder="Paste logs here..."></textarea>
 
     <button class="btn btn-green" onclick="calculateNetTimeFiltered()">Calculate</button>
-    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy</button>
 
+    <!-- First box (original rules: excludes .99 under 100, but includes .88) -->
+    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy (Default)</button>
     <div id="timeFilteredResult" class="output-box">0.00</div>
+
+    <!-- Second box (stricter: excludes .99 under 100 and ALL .88) -->
+    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResultNo88')">Copy (Excl. .88)</button>
+    <div id="timeFilteredResultNo88" class="output-box">0.00</div>
 
     <button class="btn btn-red" onclick="clearLogOnly()">Clear</button>
   </div>
@@ -112,6 +117,7 @@
     function clearLogOnly() {
       document.getElementById("logInput").value = "";
       document.getElementById("timeFilteredResult").textContent = "0.00";
+      document.getElementById("timeFilteredResultNo88").textContent = "0.00";
     }
 
     function getDate(prefix) {
@@ -169,7 +175,9 @@
       const start = getDate("start");
       const end = getDate("end");
 
-      let total = 0;
+      let total = 0;       // includes .88
+      let totalNo88 = 0;   // excludes .88
+
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
         if (date && date >= start && date <= end) {
@@ -177,20 +185,31 @@
           const netLine = logLines[i + 3];
           const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
           const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
+
           if (grossMatch && netMatch) {
             const gross = parseFloat(grossMatch[1]);
             const net = parseFloat(netMatch[1]);
+
             const is99 = gross.toFixed(2).endsWith(".99");
+            const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
+
+            // Default total: exclude .99 under 100 only
             if (!(is99 && under100)) {
               total += net;
+            }
+
+            // No88 total: exclude .99 under 100 AND all .88
+            if (!(is99 && under100) && !is88) {
+              totalNo88 += net;
             }
           }
         }
       }
+
       document.getElementById("timeFilteredResult").textContent = total.toFixed(2);
+      document.getElementById("timeFilteredResultNo88").textContent = totalNo88.toFixed(2);
     }
   </script>
 </body>
 </html>
-
