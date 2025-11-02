@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,32 +6,36 @@
   <title>Model Tools Suite</title>
   <style>
     :root {
-      --primary: #4a90e2;
-      --secondary: #f4f7fb;
+      --primary: #c62828; /* Red */
+      --secondary: #fdfdfd; /* Off-white for content */
       --text-color: #1e1e1e;
       --card-bg: #ffffff;
       --border-color: #d1d5db;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow: 0 44px 12px rgba(0, 0, 0, 0.08); /* Adjusted shadow for depth */
       --radius: 12px;
-      --btn-blue: #4a90e2;
+      --btn-blue: #2e7d32; /* Green */
       --btn-green: #4caf50;
       --btn-red: #e53935;
+      --btn-gray: #9e9e9e;
     }
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0;
-      width: 100%; height: 100%;
+      width: 100%;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--secondary);
+      /* Stable Christmas Bokeh Background */
+      background: #fdfdfd url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Christmas_Lights_Bokeh.jpg') no-repeat center center fixed; 
+      background-size: cover;
       color: var(--text-color);
       padding: 2rem;
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      min-height: 100vh;
     }
-    h1, h2 { text-align: center; color: var(--primary); }
+    h1, h2 { text-align: center; color: var(--primary); text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8); }
     textarea, select, input[type="datetime-local"], button {
       width: 100%; padding: 0.75rem; font-size: 1rem;
       margin-top: 1rem; border-radius: var(--radius);
@@ -44,13 +47,16 @@
       margin-top: 0.75rem;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      font-weight: 600;
     }
     .btn-blue { background-color: var(--btn-blue); }
-    .btn-blue:hover { background-color: #357abd; }
+    .btn-blue:hover { background-color: #1b5e20; } /* Darker green on hover */
     .btn-green { background-color: var(--btn-green); }
     .btn-green:hover { background-color: #3e8e41; }
     .btn-red { background-color: var(--btn-red); }
     .btn-red:hover { background-color: #c62828; }
+    .btn-gray { background-color: var(--btn-gray); }
+    .btn-gray:hover { background-color: #757575; }
     .tool-block {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -58,80 +64,166 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      /* Ensure some transparency for the background to show through */
+      background-color: rgba(255, 255, 255, 0.95);
     }
     .output-box {
-      background: var(--card-bg);
+      background: #f9fafb; /* Slightly different background for output */
       padding: 1rem;
       border: 1px solid var(--border-color);
       border-radius: var(--radius);
-      font-family: monospace;
-      font-size: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
       margin-top: 1rem;
       white-space: pre-wrap;
-      box-shadow: var(--shadow);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+    }
+    label {
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    .output-container {
+        margin-top: 1.5rem;
+        border-top: 2px solid var(--border-color); 
+        padding-top: 1rem;
+    }
+    /* Style for the Clear All button when isolated */
+    .clear-btn-container {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 2px solid var(--border-color);
     }
   </style>
 </head>
 <body>
-  <h1>Model Tools Suite ⚙️</h1>
-
+  <h1>Model Tools Suite 🎄</h1>
+  
   <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
-    <a href="https://model-aligner.vercel.app/" target="_blank">
+    <a href="https://model-aligner.vercel.app/" target="_blank" rel="noopener noreferrer">
       <button class="btn btn-blue">Open Model Aligner</button>
     </a>
-    <a href="https://admin-admin-lma.vercel.app/" target="_blank">
+    <a href="https://admin-admin-lma.vercel.app/" target="_blank" rel="noopener noreferrer">
       <button class="btn btn-red">Open Old Calculator</button>
     </a>
   </div>
 
   <div class="tool-block">
     <h2>Net Calculator (Filtered by Time)</h2>
+    
     <label for="startDateTime"><strong>Start Time:</strong></label>
     <input type="datetime-local" id="startDateTime" />
-
+    
     <label for="endDateTime"><strong>End Time:</strong></label>
     <input type="datetime-local" id="endDateTime" />
-
+    
     <label for="logInput">Paste Logs:</label>
     <textarea id="logInput" placeholder="Paste logs here..."></textarea>
+    
+    <!-- Calculate button remains near the input area --><button class="btn btn-green" id="calculateButton" onclick="calculateAndCopy()">Calculate & Copy Box 1</button>
+    
 
-    <button class="btn btn-green" onclick="calculateNetTimeFiltered()">Calculate</button>
+    <!-- Output Boxes --><div class="output-container">
+        <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy (Default - Excl. ALL .99)</button>
+        <div id="timeFilteredResult" class="output-box">0.00</div>
+    </div>
 
-    <!-- First box (original rules: excludes .99 under 100, but includes .88) -->
-    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy (Default)</button>
-    <div id="timeFilteredResult" class="output-box">0.00</div>
+    <div class="output-container">
+        <button class="btn btn-gray" onclick="copyToClipboard('timeFilteredResultNo88')">Copy (Excl. ALL .99 & .88) - Lauren</button>
+        <div id="timeFilteredResultNo88" class="output-box">0.00</div>
+    </div>
 
-    <!-- Second box (stricter: excludes .99 under 100 and ALL .88) -->
-    <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResultNo88')">Copy (Excl. .88) -Lauren | Use Default if lauren is on Levi</button>
-    <div id="timeFilteredResultNo88" class="output-box">0.00</div>
+    <div class="output-container">
+        <button class="btn btn-gray" onclick="copyToClipboard('timeFilteredResultBox3')">Copy (Original - Excl. .99 < 100)</button>
+        <div id="timeFilteredResultBox3" class="output-box">0.00</div>
+    </div>
 
-    <button class="btn btn-red" onclick="clearLogOnly()">Clear</button>
+    <!-- Clear All button moved to the very bottom --><div class="clear-btn-container">
+        <button class="btn btn-red" onclick="clearAll()">Clear All Inputs and Results</button>
+    </div>
+
   </div>
 
   <script>
     function copyToClipboard(id) {
       const text = document.getElementById(id).textContent.trim();
-      navigator.clipboard.writeText(text);
+      // Use the clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+              // Optional: Add a visual cue
+              const el = document.getElementById(id);
+              const originalColor = el.style.backgroundColor;
+              el.style.backgroundColor = '#d1e7dd'; // Greenish flash
+              setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
+          }).catch(err => {
+              console.error('Failed to copy text: ', err);
+              fallbackCopyTextToClipboard(text); // Fallback for secure contexts (like file://)
+          });
+      } else {
+          fallbackCopyTextToClipboard(text); // Fallback for older browsers
+      }
     }
 
+    // Fallback for non-navigator.clipboard environments
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position="fixed";  //avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.width = "2em";
+        textArea.style.height = "2em";
+        textArea.style.padding = "0";
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function clearAll() {
+      document.getElementById("logInput").value = "";
+      document.getElementById("startDateTime").value = "";
+      document.getElementById("endDateTime").value = "";
+      document.getElementById("timeFilteredResult").textContent = "0.00";
+      document.getElementById("timeFilteredResultNo88").textContent = "0.00";
+      document.getElementById("timeFilteredResultBox3").textContent = "0.00";
+    }
+
+    // Renamed from clearLogOnly to clearAll for clarity
     function clearLogOnly() {
       document.getElementById("logInput").value = "";
       document.getElementById("timeFilteredResult").textContent = "0.00";
       document.getElementById("timeFilteredResultNo88").textContent = "0.00";
+      document.getElementById("timeFilteredResultBox3").textContent = "0.00";
     }
 
     function getDate(prefix) {
       const input = document.getElementById(prefix + "DateTime");
+      if (!input.value) return null; // Handle empty date
       return new Date(input.value);
     }
 
     function parseDate(line) {
+      // Original regex: matches formats like "Oct 25, 2025, 1:30 pm"
       const match = line.match(/([A-Za-z]{2,}) (\d{1,2}),\s*(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)/i);
       if (!match) return null;
-
+      
       const [ , monthStr, day, year, hourStr, minuteStr, ampm ] = match;
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
+      
+      // Levenshtein distance function to find closest month
       function levenshtein(a, b) {
         const dp = Array.from({length: b.length + 1}, (_, i) => [i]);
         dp[0] = Array.from({length: a.length + 1}, (_, j) => j);
@@ -156,18 +248,27 @@
             bestIndex = idx;
           }
         });
+        // Allow up to 2 "typos" in the month name
         return bestScore <= 2 ? bestIndex : -1;
       }
 
       const monthIndex = getClosestMonthIndex(monthStr);
-      if (monthIndex === -1) return null;
-
+      if (monthIndex === -1) return null; // Failed to parse month
+      
       let hour = parseInt(hourStr);
       const minute = parseInt(minuteStr);
+      
       if (ampm.toLowerCase() === "pm" && hour !== 12) hour += 12;
-      if (ampm.toLowerCase() === "am" && hour === 12) hour = 0;
-
+      if (ampm.toLowerCase() === "am" && hour === 12) hour = 0; // 12 AM is 00:00
+      
       return new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
+    }
+
+    function calculateAndCopy() {
+        // Run the calculation first
+        calculateNetTimeFiltered();
+        // Then copy the result of the first box
+        copyToClipboard('timeFilteredResult');
     }
 
     function calculateNetTimeFiltered() {
@@ -175,42 +276,63 @@
       const start = getDate("start");
       const end = getDate("end");
 
-      let total = 0;       // includes .88
-      let totalNo88 = 0;   // excludes .88
+      // Check for valid dates
+      if (!start || !end) {
+          // Changed to use a custom message box or console log instead of alert()
+          console.error("Please select both a Start Time and an End Time.");
+          return;
+      }
+      if (start > end) {
+          // Changed to use a custom message box or console log instead of alert()
+          console.error("Start Time must be before End Time.");
+          return;
+      }
+
+      let totalBox1 = 0;   // New Default: Excludes ALL .99
+      let totalBox2 = 0;   // New Stricter: Excludes ALL .99 AND ALL .88
+      let totalBox3 = 0;   // Original Default: Excludes .99 < 100
 
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
+        
+        // Check if date is valid and within the selected range
         if (date && date >= start && date <= end) {
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
+          
           const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
           const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
 
           if (grossMatch && netMatch) {
             const gross = parseFloat(grossMatch[1]);
             const net = parseFloat(netMatch[1]);
-
+            
             const is99 = gross.toFixed(2).endsWith(".99");
             const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
 
-            // Default total: exclude .99 under 100 only
-            if (!(is99 && under100)) {
-              total += net;
+            // Box 1 Total (New Default): exclude ALL .99
+            if (!is99) {
+              totalBox1 += net;
+            }
+            
+            // Box 2 Total (New Stricter): exclude ALL .99 AND ALL .88
+            if (!is99 && !is88) {
+              totalBox2 += net;
             }
 
-            // No88 total: exclude .99 under 100 AND all .88
-            if (!(is99 && under100) && !is88) {
-              totalNo88 += net;
+            // Box 3 Total (Original Default): exclude .99 under 100 only
+            if (!(is99 && under100)) {
+              totalBox3 += net;
             }
           }
         }
       }
-
-      document.getElementById("timeFilteredResult").textContent = total.toFixed(2);
-      document.getElementById("timeFilteredResultNo88").textContent = totalNo88.toFixed(2);
+      
+      document.getElementById("timeFilteredResult").textContent = totalBox1.toFixed(2);
+      document.getElementById("timeFilteredResultNo88").textContent = totalBox2.toFixed(2);
+      document.getElementById("timeFilteredResultBox3").textContent = totalBox3.toFixed(2);
     }
   </script>
 </body>
 </html>
-
