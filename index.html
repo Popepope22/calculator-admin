@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +26,7 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       /* Stable Christmas Bokeh Background */
-      background: #fdfdfd url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Christmas_Lights_Bokeh.jpg') no-repeat center center fixed; 
+      background: #fdfdfd url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Christmas_Lights_Bokeh.jpg') no-repeat center center fixed;
       background-size: cover;
       color: var(--text-color);
       padding: 2rem;
@@ -46,7 +45,7 @@
     /* General button style (resetting margins for compact layout) */
     .btn {
       color: white; border: none;
-      margin: 0; 
+      margin: 0;
       cursor: pointer;
       transition: background-color 0.3s ease;
       font-weight: 600;
@@ -92,7 +91,7 @@
     }
     .output-container {
         margin-top: 1.5rem;
-        border-top: 2px solid var(--border-color); 
+        border-top: 2px solid var(--border-color);
         padding-top: 1rem;
     }
     .clear-btn-container {
@@ -101,7 +100,7 @@
         border-top: 2px solid var(--border-color);
     }
     .hidden { display: none !important; }
-    
+
     /* --- Multi-Quarter Styles --- */
     .minimal-output-grid {
         display: flex;
@@ -121,19 +120,21 @@
         font-size: 1.2rem;
         color: var(--primary);
     }
+    /* --- START MODIFICATION FOR SMALLER, WRAPPING BOXES --- */
     .minimal-box {
       background: #e0e0e0;
-      padding: 1rem 0.5rem;
+      padding: 0.5rem; /* Reduced padding for a smaller box */
       border-radius: var(--radius);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1.25rem;
+      font-size: 1.1rem; /* Reduced font size to fit more text */
       font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal; /* ALLOW wrapping */
+      word-break: break-all; /* Ensures long numbers break instead of just words */
+      /* Removed: overflow: hidden; and text-overflow: ellipsis; */
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-      cursor: pointer; 
-    }
+      cursor: pointer;
+     }
+    /* --- END MODIFICATION --- */
     .detailed-table-container {
         margin-top: 2rem;
         padding: 1rem;
@@ -189,7 +190,8 @@
 </head>
 <body>
   <h1>Model Tools Suite 🎄</h1>
-    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
+
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
     <a href="https://model-aligner.vercel.app/" target="_blank" rel="noopener noreferrer">
       <button class="btn btn-blue">Open Model Aligner</button>
     </a>
@@ -200,14 +202,18 @@
 
   <div class="tool-block" id="singleQuarterBlock">
     <h2>Net Calculator (<span id="secretFTrigger" style="cursor: pointer;">F</span>iltered by Time)</h2>
-        <label for="startDateTime"><strong>Start Time:</strong></label>
+
+    <label for="startDateTime"><strong>Start Time:</strong></label>
     <input type="datetime-local" id="startDateTime" />
-        <label for="endDateTime"><strong>End Time:</strong></label>
+
+    <label for="endDateTime"><strong>End Time:</strong></label>
     <input type="datetime-local" id="endDateTime" />
-        <label for="logInputSingle">Paste Logs (Single-Quarter):</label>
+
+    <label for="logInputSingle">Paste Logs (Single-Quarter):</label>
     <textarea id="logInputSingle" placeholder="Paste logs here..."></textarea>
-        <button class="btn btn-green btn-flow" id="calculateButton" onclick="calculateAndCopy()">Calculate & Copy Box 1</button>
-        
+
+    <button class="btn btn-green btn-flow" id="calculateButton" onclick="calculateAndCopy()">Calculate & Copy Box 1</button>
+
     <div class="output-container">
         <button class="btn btn-blue btn-flow" onclick="copyToClipboard('timeFilteredResult')">Copy (Default - Excl. ALL .99)</button>
         <div id="timeFilteredResult" class="output-box" onclick="copyToClipboard('timeFilteredResult')">0.00</div>
@@ -220,6 +226,7 @@
         <button class="btn btn-gray btn-flow" onclick="copyToClipboard('timeFilteredResultBox3')">Copy (Original - Excl. .99 < 100)</button>
         <div id="timeFilteredResultBox3" class="output-box" onclick="copyToClipboard('timeFilteredResultBox3')">0.00</div>
     </div>
+
     <div class="clear-btn-container">
         <button class="btn btn-red btn-flow" onclick="clearAllSingleQuarter()">Clear All Inputs and Results</button>
     </div>
@@ -227,7 +234,7 @@
 
   <div class="tool-block" id="multiQuarterBlock" style="display: none; margin-top: 2rem;">
     <h2>Multi-<span id="secretQTrigger" style="cursor: pointer;">Q</span>uarter Tools 🛠️</h2>
-    
+
     <label for="logInputMulti">Paste Logs (Multi-Quarter):</label>
     <textarea id="logInputMulti" placeholder="Paste logs here..."></textarea>
 
@@ -235,7 +242,7 @@
       <label style="margin-top: 0;"><strong>Define 4 Time Quarters:</strong></label>
       <button class="btn btn-gray" id="toggleQuartersBtn" onclick="toggleQuarterInputs()" style="width: auto; padding: 0.5rem 1rem; margin-top: 0; font-size: 0.9rem;">Hide Dates</button>
     </div>
-    
+
     <div id="quarterInputContainer" class="quarter-inputs">
       <div class="quarter-section">
         <h4 style="color: #007bff;">Quarter 1</h4>
@@ -266,7 +273,7 @@
         <input type="datetime-local" id="q4EndDateTime" />
       </div>
     </div>
-        
+
     <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; align-items: center;">
       <button class="btn btn-green btn-flow" id="calculateMultiButton" onclick="calculateAndCopySelected()"
         style="padding: 1rem; width: 70%; max-width: 400px; font-size: 1.15rem;">
@@ -282,7 +289,7 @@
         </select>
       </div>
     </div>
-        
+
     <div class="minimal-output-grid">
       <div>
         <h4>Q1</h4>
@@ -301,7 +308,7 @@
         <div id="q4TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q4TimeFilteredResult')">0.00</div>
       </div>
     </div>
-        
+
     <div class="detailed-table-container">
       <button class="btn btn-gray btn-flow" onclick="toggleDetailedTable()">Toggle Detailed Results (Box 2 & 3)</button>
       <div id="detailedTable" class="hidden">
@@ -341,13 +348,12 @@
         </table>
       </div>
     </div>
-    
+
     <div class="clear-btn-container">
         <button class="btn btn-red btn-flow" onclick="clearAllMultiQuarter()">Clear All Multi-Quarter Inputs & Results</button>
         <button class="btn btn-gray btn-flow" onclick="toggleMultiQuarterMode()">Hide Multi-Quarter Tools</button>
     </div>
   </div>
-
 
   <script>
     const QUARTERS = ['q1', 'q2', 'q3', 'q4'];
@@ -356,9 +362,8 @@
     const REQUIRED_CLICKS = 4;
     let clickCountF = 0;
     let clickCountQ = 0;
-    
-    // --- Shared Helper Functions (Used by both tools) ---
 
+    // --- Shared Helper Functions (Used by both tools) ---
     // Helper to get a date object from a quarter/type pair ID
     function getDate(quarter, type) {
       // Handles both single-quarter (quarter="start", type="") and multi-quarter (quarter="q1", type="Start")
@@ -366,16 +371,16 @@
       if (!input || !input.value) return null; // Handle empty date
       return new Date(input.value);
     }
-    
+
     // Function to parse the date from the log line
     function parseDate(line) {
       // Regex matches common log date formats like "Oct 25, 2025, 1:30 pm"
       const match = line.match(/([A-Za-z]{2,}) (\d{1,2}),\s*(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)/i);
       if (!match) return null;
-            
+
       const [ , monthStr, day, year, hourStr, minuteStr, ampm ] = match;
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            
+
       // Levenshtein distance function for fuzzy month matching (retained from original)
       function levenshtein(a, b) {
         const dp = Array.from({length: b.length + 1}, (_, i) => [i]);
@@ -405,17 +410,16 @@
       }
 
       const monthIndex = getClosestMonthIndex(monthStr);
-      if (monthIndex === -1) return null; 
-            
+      if (monthIndex === -1) return null;
+
       let hour = parseInt(hourStr);
       const minute = parseInt(minuteStr);
-            
+
       if (ampm.toLowerCase() === "pm" && hour !== 12) hour += 12;
       if (ampm.toLowerCase() === "am" && hour === 12) hour = 0; // 12 AM is 00:00
-            
+
       return new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
     }
-
 
     function copyToClipboard(id) {
       const text = document.getElementById(id).textContent.trim();
@@ -425,17 +429,16 @@
               // Optional: Add a visual cue
               const el = document.getElementById(id);
               const originalColor = el.style.backgroundColor;
-              el.style.backgroundColor = '#d1e7dd'; 
+              el.style.backgroundColor = '#d1e7dd';
               setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
           }).catch(err => {
               console.error('Failed to copy text: ', err);
-              fallbackCopyTextToClipboard(text); 
-          });
+              fallbackCopyTextToClipboard(text);
+           });
       } else {
-          fallbackCopyTextToClipboard(text); 
-      }
+          fallbackCopyTextToClipboard(text);
+       }
     }
-
     // Fallback for non-navigator.clipboard environments
     function fallbackCopyTextToClipboard(text) {
         var textArea = document.createElement("textarea");
@@ -460,9 +463,7 @@
         }
         document.body.removeChild(textArea);
     }
-
     // --- Single-Quarter Logic (Index 2) ---
-
     // Renamed function to calculate the single-quarter results
     function calculateNetSingleQuarter(showAlerts = false) {
       const logLines = document.getElementById(LOG_ID_SINGLE).value.trim().split("\n");
@@ -481,25 +482,25 @@
           return false;
       }
 
-      let totalBox1 = 0;   
-      let totalBox2 = 0;   
-      let totalBox3 = 0;   
+      let totalBox1 = 0;
+      let totalBox2 = 0;
+      let totalBox3 = 0;
 
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
-                
+
         // Check if date is valid and within the selected range
         if (date && date >= start && date <= end) {
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
-                    
+
           const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
           const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
 
           if (grossMatch && netMatch) {
             const gross = parseFloat(grossMatch[1]);
             const net = parseFloat(netMatch[1]);
-                        
+
             const is99 = gross.toFixed(2).endsWith(".99");
             const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
@@ -508,7 +509,7 @@
             if (!is99) {
               totalBox1 += net;
             }
-                        
+
             // Box 2 Total (New Stricter): exclude ALL .99 AND ALL .88
             if (!is99 && !is88) {
               totalBox2 += net;
@@ -521,14 +522,13 @@
           }
         }
       }
-            
+
       document.getElementById("timeFilteredResult").textContent = totalBox1.toFixed(2);
       document.getElementById("timeFilteredResultNo88").textContent = totalBox2.toFixed(2);
       document.getElementById("timeFilteredResultBox3").textContent = totalBox3.toFixed(2);
-      
+
       return true;
     }
-
     function calculateAndCopy() {
         // Run the calculation first
         const success = calculateNetSingleQuarter(true);
@@ -537,7 +537,6 @@
             copyToClipboard('timeFilteredResult');
         }
     }
-
     function clearAllSingleQuarter() {
       document.getElementById(LOG_ID_SINGLE).value = "";
       document.getElementById("startDateTime").value = "";
@@ -546,13 +545,11 @@
       document.getElementById("timeFilteredResultNo88").textContent = "0.00";
       document.getElementById("timeFilteredResultBox3").textContent = "0.00";
     }
-
     // --- Multi-Quarter Logic (Index 1) ---
-
     // Function to calculate all 12 totals (4 quarters * 3 boxes)
     function calculateNetMultiQuarter(showAlerts = false) {
       const logLines = document.getElementById(LOG_ID_MULTI).value.trim().split("\n");
-            
+
       // 1. Collect and validate all quarter ranges
       const quarterRanges = {};
       let hasValidRange = false;
@@ -560,7 +557,7 @@
       QUARTERS.forEach(q => {
           const start = getDate(q, 'Start');
           const end = getDate(q, 'End');
-                    
+
           quarterRanges[q] = { start: null, end: null, valid: false };
 
           if (start && end) {
@@ -594,7 +591,7 @@
       // 3. Loop through logs and assign to the correct quarter
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
-                
+
         let targetQuarter = null;
 
         if (date) {
@@ -607,31 +604,31 @@
                 }
             }
         }
-                
+
         // Only process the line if it was assigned to a quarter
         if (targetQuarter) {
           // Look ahead 1 line for Gross and 3 lines for Net
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
-                    
+
           const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
           const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
 
           if (grossMatch && netMatch) {
             const gross = parseFloat(grossMatch[1]);
             const net = parseFloat(netMatch[1]);
-                        
+
             const is99 = gross.toFixed(2).endsWith(".99");
             const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
-                        
+
             const totals = allQuarterTotals[targetQuarter];
 
             // Box 1 Total (Default): exclude ALL .99
             if (!is99) {
               totals.box1 += net;
             }
-                        
+
             // Box 2 Total (Stricter): exclude ALL .99 AND ALL .88
             if (!is99 && !is88) {
               totals.box2 += net;
@@ -648,41 +645,42 @@
       // 4. Update the 16 HTML output elements
       QUARTERS.forEach(q => {
           const totals = allQuarterTotals[q];
-                    
+
           // Update Minimal Boxes (Q1 B1, Q2 B1, etc.)
           document.getElementById(`${q}TimeFilteredResult`).textContent = totals.box1.toFixed(2);
-                    
+
           // Update Detailed Table Box 1 row (duplicate of above)
           document.getElementById(`${q}TableResult`).textContent = totals.box1.toFixed(2);
-                    
+
           // Update Detailed Table Box 2 & 3 rows
           document.getElementById(`${q}TimeFilteredResultNo88`).textContent = totals.box2.toFixed(2);
           document.getElementById(`${q}TimeFilteredResultBox3`).textContent = totals.box3.toFixed(2);
       });
-            
+
       return true; // Indicate success
     }
 
     function calculateAndCopySelected() {
       // 1. Run the calculation for all quarters
-      const calculationSuccessful = calculateNetMultiQuarter(true); 
+      const calculationSuccessful = calculateNetMultiQuarter(true);
 
       if (!calculationSuccessful) return;
 
       // 2. Perform the copy action immediately after
       const select = document.getElementById('copyQuarterSelect');
-      const quarter = select.value;       
-      const elementId = `${quarter}TimeFilteredResult`;             
-      
+      const quarter = select.value;
+
+      const elementId = `${quarter}TimeFilteredResult`;
+
       // Use a short timeout to ensure the DOM update is fully processed before trying to read the value
       setTimeout(() => {
           const resultText = document.getElementById(elementId).textContent.trim();
-                    
+
           if (resultText === '0.00') {
               alert(`Calculation completed, but the result for ${select.options[select.selectedIndex].text} is 0.00. Please check your logs/inputs. Nothing was copied.`);
               return;
           }
-                    
+
           copyToClipboard(elementId);
       }, 50); // Small delay to ensure DOM is updated
     }
@@ -695,9 +693,9 @@
     function toggleQuarterInputs() {
       const container = document.getElementById('quarterInputContainer');
       const button = document.getElementById('toggleQuartersBtn');
-                
+
       container.classList.toggle('hidden');
-                
+
       if (container.classList.contains('hidden')) {
           button.textContent = 'Show Dates';
           button.classList.remove('btn-gray');
@@ -705,18 +703,18 @@
       } else {
           button.textContent = 'Hide Dates';
           button.classList.remove('btn-blue');
-          button.classList.add('btn-gray'); 
-      }
+          button.classList.add('btn-gray');
+       }
     }
 
     function clearAllMultiQuarter() {
       document.getElementById(LOG_ID_MULTI).value = ""; // Clear its own log
-            
+
       // Clear all 8 Quarter time inputs and 16 result elements
       QUARTERS.forEach(q => {
           document.getElementById(`${q}StartDateTime`).value = "";
           document.getElementById(`${q}EndDateTime`).value = "";
-                    
+
           // Clear Minimal Boxes
           document.getElementById(`${q}TimeFilteredResult`).textContent = "0.00";
           // Clear Table Boxes (Box 2 & 3)
@@ -730,12 +728,12 @@
     }
 
     // --- Secret Toggle Logic ---
-    
+
     // Core function to swap tool blocks
     function toggleMultiQuarterMode() {
         const multi = document.getElementById('multiQuarterBlock');
-        const single = document.getElementById('singleQuarterBlock'); 
-        
+        const single = document.getElementById('singleQuarterBlock');
+
         // This function will either show/hide and vice-versa
         if (multi.style.display === 'none' || multi.style.display === '') {
             // Switch to Multi-Quarter Mode
@@ -744,14 +742,14 @@
         } else {
             // Switch back to Single-Quarter Mode
             multi.style.display = 'none';
-            single.style.display = 'block'; 
-        }
+            single.style.display = 'block';
+         }
     }
 
     // Handler for the 'F' trigger (Single -> Multi)
     function handleSecretFClick() {
         clickCountF++;
-        
+
         if (clickCountF >= REQUIRED_CLICKS) {
             toggleMultiQuarterMode(); // Show Multi, Hide Single
             clickCountF = 0; // Reset F counter
@@ -765,7 +763,7 @@
         const multi = document.getElementById('multiQuarterBlock');
         if (multi.style.display === 'block') {
             clickCountQ++;
-            
+
             if (clickCountQ >= REQUIRED_CLICKS) {
                 toggleMultiQuarterMode(); // Hide Multi, Show Single
                 clickCountQ = 0; // Reset Q counter
@@ -773,21 +771,20 @@
             }
         }
     }
-    
+
     document.addEventListener('DOMContentLoaded', () => {
         // 1. Attach listener for the 'F' trigger (in Single-Quarter title)
         const triggerF = document.getElementById('secretFTrigger');
         if (triggerF) {
             triggerF.addEventListener('click', handleSecretFClick);
         }
-        
+
         // 2. Attach listener for the 'Q' trigger (in Multi-Quarter title)
         const triggerQ = document.getElementById('secretQTrigger');
         if (triggerQ) {
             triggerQ.addEventListener('click', handleSecretQClick);
         }
     });
-
   </script>
 </body>
 </html>
