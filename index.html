@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,7 @@
       --text-color: #1e1e1e;
       --card-bg: #ffffff;
       --border-color: #d1d5db;
-      --shadow: 0 44px 12px rgba(0, 0, 0, 0.08); /* Adjusted shadow for depth */
+      --shadow: 0 44px 12px rgba(0, 0, 0, 0.08);
       --radius: 12px;
       --btn-blue: #2e7d32; /* Green */
       --btn-green: #4caf50;
@@ -42,15 +43,18 @@
       border: 1px solid var(--border-color);
     }
     textarea { min-height: 120px; resize: vertical; }
+    /* General button style (resetting margins for compact layout) */
     .btn {
       color: white; border: none;
-      margin-top: 0.75rem;
+      margin: 0; 
       cursor: pointer;
       transition: background-color 0.3s ease;
       font-weight: 600;
     }
+    /* Margin adjustments for buttons not directly inside flow */
+    .btn-flow { margin-top: 1rem; }
     .btn-blue { background-color: var(--btn-blue); }
-    .btn-blue:hover { background-color: #1b5e20; } /* Darker green on hover */
+    .btn-blue:hover { background-color: #1b5e20; }
     .btn-green { background-color: var(--btn-green); }
     .btn-green:hover { background-color: #3e8e41; }
     .btn-red { background-color: var(--btn-red); }
@@ -66,7 +70,6 @@
       width: 100%;
       max-width: 800px;
       margin: 0 auto;
-      /* Ensure some transparency for the background to show through */
       background-color: rgba(255, 255, 255, 0.95);
     }
     .output-box {
@@ -80,6 +83,7 @@
       margin-top: 1rem;
       white-space: pre-wrap;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+      cursor: pointer;
     }
     label {
         font-weight: 600;
@@ -91,18 +95,101 @@
         border-top: 2px solid var(--border-color); 
         padding-top: 1rem;
     }
-    /* Style for the Clear All button when isolated */
     .clear-btn-container {
         margin-top: 2rem;
         padding-top: 1rem;
         border-top: 2px solid var(--border-color);
     }
+    .hidden { display: none !important; }
+    
+    /* --- Multi-Quarter Styles --- */
+    .minimal-output-grid {
+        display: flex;
+        justify-content: space-around;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--primary);
+    }
+    .minimal-output-grid > div {
+        flex: 1;
+        text-align: center;
+        min-width: 0;
+    }
+    .minimal-output-grid h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+    .minimal-box {
+      background: #e0e0e0;
+      padding: 1rem 0.5rem;
+      border-radius: var(--radius);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      cursor: pointer; 
+    }
+    .detailed-table-container {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        background: #f9fafb;
+    }
+    .detailed-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    .detailed-table th, .detailed-table td {
+        padding: 0.75rem;
+        text-align: right;
+        border: 1px solid #e5e7eb;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .detailed-table th:first-child, .detailed-table td:first-child {
+        text-align: left;
+        font-weight: 600;
+        font-family: 'Segoe UI', sans-serif;
+        color: var(--primary);
+    }
+    .detailed-table thead th {
+        background-color: #f3f4f6;
+        color: var(--text-color);
+        font-weight: 700;
+        text-align: center;
+    }
+    .quarter-inputs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 0.5rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        background-color: #f5f5f5;
+    }
+    .quarter-inputs input[type="datetime-local"] {
+        margin-top: 0.25rem;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .quarter-section { padding-right: 1rem; }
+    .quarter-section:nth-child(odd):not(:last-child) { border-right: 1px dashed var(--border-color); }
+    .quarter-section:nth-child(3) { border-top: 1px dashed var(--border-color); padding-top: 1rem;}
+    .quarter-section:nth-child(4) { border-top: 1px dashed var(--border-color); padding-top: 1rem; padding-left: 1rem;}
+    .quarter-section:nth-child(2) { padding-left: 1rem;}
+    .quarter-section h4 { font-weight: 700; color: var(--primary); margin: 0; }
   </style>
 </head>
 <body>
   <h1>Model Tools Suite 🎄</h1>
-  
-  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:-1rem;">
     <a href="https://model-aligner.vercel.app/" target="_blank" rel="noopener noreferrer">
       <button class="btn btn-blue">Open Model Aligner</button>
     </a>
@@ -111,119 +198,185 @@
     </a>
   </div>
 
-  <div class="tool-block">
-    <h2>Net Calculator (Filtered by Time)</h2>
-    
-    <label for="startDateTime"><strong>Start Time:</strong></label>
+  <div class="tool-block" id="singleQuarterBlock">
+    <h2>Net Calculator (<span id="secretFTrigger" style="cursor: pointer;">F</span>iltered by Time)</h2>
+        <label for="startDateTime"><strong>Start Time:</strong></label>
     <input type="datetime-local" id="startDateTime" />
-    
-    <label for="endDateTime"><strong>End Time:</strong></label>
+        <label for="endDateTime"><strong>End Time:</strong></label>
     <input type="datetime-local" id="endDateTime" />
-    
-    <label for="logInput">Paste Logs:</label>
-    <textarea id="logInput" placeholder="Paste logs here..."></textarea>
-    
-    <!-- Calculate button remains near the input area --><button class="btn btn-green" id="calculateButton" onclick="calculateAndCopy()">Calculate & Copy Box 1</button>
-    
-
-    <!-- Output Boxes --><div class="output-container">
-        <button class="btn btn-blue" onclick="copyToClipboard('timeFilteredResult')">Copy (Default - Excl. ALL .99)</button>
-        <div id="timeFilteredResult" class="output-box">0.00</div>
-    </div>
-
+        <label for="logInputSingle">Paste Logs (Single-Quarter):</label>
+    <textarea id="logInputSingle" placeholder="Paste logs here..."></textarea>
+        <button class="btn btn-green btn-flow" id="calculateButton" onclick="calculateAndCopy()">Calculate & Copy Box 1</button>
+        
     <div class="output-container">
-        <button class="btn btn-gray" onclick="copyToClipboard('timeFilteredResultNo88')">Copy (Excl. ALL .99 & .88) - Lauren</button>
-        <div id="timeFilteredResultNo88" class="output-box">0.00</div>
+        <button class="btn btn-blue btn-flow" onclick="copyToClipboard('timeFilteredResult')">Copy (Default - Excl. ALL .99)</button>
+        <div id="timeFilteredResult" class="output-box" onclick="copyToClipboard('timeFilteredResult')">0.00</div>
     </div>
-
     <div class="output-container">
-        <button class="btn btn-gray" onclick="copyToClipboard('timeFilteredResultBox3')">Copy (Original - Excl. .99 < 100)</button>
-        <div id="timeFilteredResultBox3" class="output-box">0.00</div>
+        <button class="btn btn-gray btn-flow" onclick="copyToClipboard('timeFilteredResultNo88')">Copy (Excl. ALL .99 & .88) - Lauren</button>
+        <div id="timeFilteredResultNo88" class="output-box" onclick="copyToClipboard('timeFilteredResultNo88')">0.00</div>
     </div>
-
-    <!-- Clear All button moved to the very bottom --><div class="clear-btn-container">
-        <button class="btn btn-red" onclick="clearAll()">Clear All Inputs and Results</button>
+    <div class="output-container">
+        <button class="btn btn-gray btn-flow" onclick="copyToClipboard('timeFilteredResultBox3')">Copy (Original - Excl. .99 < 100)</button>
+        <div id="timeFilteredResultBox3" class="output-box" onclick="copyToClipboard('timeFilteredResultBox3')">0.00</div>
     </div>
-
+    <div class="clear-btn-container">
+        <button class="btn btn-red btn-flow" onclick="clearAllSingleQuarter()">Clear All Inputs and Results</button>
+    </div>
   </div>
 
+  <div class="tool-block" id="multiQuarterBlock" style="display: none; margin-top: 2rem;">
+    <h2>Multi-<span id="secretQTrigger" style="cursor: pointer;">Q</span>uarter Tools 🛠️</h2>
+    
+    <label for="logInputMulti">Paste Logs (Multi-Quarter):</label>
+    <textarea id="logInputMulti" placeholder="Paste logs here..."></textarea>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+      <label style="margin-top: 0;"><strong>Define 4 Time Quarters:</strong></label>
+      <button class="btn btn-gray" id="toggleQuartersBtn" onclick="toggleQuarterInputs()" style="width: auto; padding: 0.5rem 1rem; margin-top: 0; font-size: 0.9rem;">Hide Dates</button>
+    </div>
+    
+    <div id="quarterInputContainer" class="quarter-inputs">
+      <div class="quarter-section">
+        <h4 style="color: #007bff;">Quarter 1</h4>
+        <label for="q1StartDateTime">Start:</label>
+        <input type="datetime-local" id="q1StartDateTime" />
+        <label for="q1EndDateTime">End:</label>
+        <input type="datetime-local" id="q1EndDateTime" />
+      </div>
+      <div class="quarter-section">
+        <h4 style="color: #ffc107;">Quarter 2</h4>
+        <label for="q2StartDateTime">Start:</label>
+        <input type="datetime-local" id="q2StartDateTime" />
+        <label for="q2EndDateTime">End:</label>
+        <input type="datetime-local" id="q2EndDateTime" />
+      </div>
+      <div class="quarter-section">
+        <h4 style="color: #17a2b8;">Quarter 3</h4>
+        <label for="q3StartDateTime">Start:</label>
+        <input type="datetime-local" id="q3StartDateTime" />
+        <label for="q3EndDateTime">End:</label>
+        <input type="datetime-local" id="q3EndDateTime" />
+      </div>
+      <div class="quarter-section">
+        <h4 style="color: #dc3545;">Quarter 4</h4>
+        <label for="q4StartDateTime">Start:</label>
+        <input type="datetime-local" id="q4StartDateTime" />
+        <label for="q4EndDateTime">End:</label>
+        <input type="datetime-local" id="q4EndDateTime" />
+      </div>
+    </div>
+        
+    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; align-items: center;">
+      <button class="btn btn-green btn-flow" id="calculateMultiButton" onclick="calculateAndCopySelected()"
+        style="padding: 1rem; width: 70%; max-width: 400px; font-size: 1.15rem;">
+        Calculate All & Copy Selected
+      </button>
+      <div style="width: 70%; max-width: 400px;">
+        <label style="margin-top: 0; display: block; text-align: center; font-size: 0.95rem; font-weight: 500;">Select Quarter Net to Copy:</label>
+        <select id="copyQuarterSelect" style="margin-top: 0.25rem; padding: 1rem 0.5rem; font-size: 1.25rem; text-align: center;">
+          <option value="q1">Q1</option>
+          <option value="q2">Q2</option>
+          <option value="q3">Q3</option>
+          <option value="q4">Q4</option>
+        </select>
+      </div>
+    </div>
+        
+    <div class="minimal-output-grid">
+      <div>
+        <h4>Q1</h4>
+        <div id="q1TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q1TimeFilteredResult')">0.00</div>
+      </div>
+      <div>
+        <h4>Q2</h4>
+        <div id="q2TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q2TimeFilteredResult')">0.00</div>
+      </div>
+      <div>
+        <h4>Q3</h4>
+        <div id="q3TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q3TimeFilteredResult')">0.00</div>
+      </div>
+      <div>
+        <h4>Q4</h4>
+        <div id="q4TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q4TimeFilteredResult')">0.00</div>
+      </div>
+    </div>
+        
+    <div class="detailed-table-container">
+      <button class="btn btn-gray btn-flow" onclick="toggleDetailedTable()">Toggle Detailed Results (Box 2 & 3)</button>
+      <div id="detailedTable" class="hidden">
+        <table class="detailed-table">
+          <thead>
+            <tr>
+              <th>Calculation Type</th>
+              <th style="color: #007bff;">Q1</th>
+              <th style="color: #ffc107;">Q2</th>
+              <th style="color: #17a2b8;">Q3</th>
+              <th style="color: #dc3545;">Q4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>**Box 1 (Default: Excl. ALL .99)**</td>
+              <td id="q1TableResult">0.00</td>
+              <td id="q2TableResult">0.00</td>
+              <td id="q3TableResult">0.00</td>
+              <td id="q4TableResult">0.00</td>
+            </tr>
+            <tr>
+              <td>Box 2 (Strict: Excl. ALL .99 & .88)</td>
+              <td id="q1TimeFilteredResultNo88">0.00</td>
+              <td id="q2TimeFilteredResultNo88">0.00</td>
+              <td id="q3TimeFilteredResultNo88">0.00</td>
+              <td id="q4TimeFilteredResultNo88">0.00</td>
+            </tr>
+            <tr>
+              <td>Box 3 (Original: Excl. .99 < $100)</td>
+              <td id="q1TimeFilteredResultBox3">0.00</td>
+              <td id="q2TimeFilteredResultBox3">0.00</td>
+              <td id="q3TimeFilteredResultBox3">0.00</td>
+              <td id="q4TimeFilteredResultBox3">0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="clear-btn-container">
+        <button class="btn btn-red btn-flow" onclick="clearAllMultiQuarter()">Clear All Multi-Quarter Inputs & Results</button>
+        <button class="btn btn-gray btn-flow" onclick="toggleMultiQuarterMode()">Hide Multi-Quarter Tools</button>
+    </div>
+  </div>
+
+
   <script>
-    function copyToClipboard(id) {
-      const text = document.getElementById(id).textContent.trim();
-      // Use the clipboard API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => {
-              // Optional: Add a visual cue
-              const el = document.getElementById(id);
-              const originalColor = el.style.backgroundColor;
-              el.style.backgroundColor = '#d1e7dd'; // Greenish flash
-              setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
-          }).catch(err => {
-              console.error('Failed to copy text: ', err);
-              fallbackCopyTextToClipboard(text); // Fallback for secure contexts (like file://)
-          });
-      } else {
-          fallbackCopyTextToClipboard(text); // Fallback for older browsers
-      }
-    }
+    const QUARTERS = ['q1', 'q2', 'q3', 'q4'];
+    const LOG_ID_SINGLE = "logInputSingle";
+    const LOG_ID_MULTI = "logInputMulti";
+    const REQUIRED_CLICKS = 4;
+    let clickCountF = 0;
+    let clickCountQ = 0;
+    
+    // --- Shared Helper Functions (Used by both tools) ---
 
-    // Fallback for non-navigator.clipboard environments
-    function fallbackCopyTextToClipboard(text) {
-        var textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position="fixed";  //avoid scrolling to bottom
-        textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.width = "2em";
-        textArea.style.height = "2em";
-        textArea.style.padding = "0";
-        textArea.style.border = "none";
-        textArea.style.outline = "none";
-        textArea.style.boxShadow = "none";
-        textArea.style.background = "transparent";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-        } catch (err) {
-            console.error('Fallback: Oops, unable to copy', err);
-        }
-        document.body.removeChild(textArea);
-    }
-
-    function clearAll() {
-      document.getElementById("logInput").value = "";
-      document.getElementById("startDateTime").value = "";
-      document.getElementById("endDateTime").value = "";
-      document.getElementById("timeFilteredResult").textContent = "0.00";
-      document.getElementById("timeFilteredResultNo88").textContent = "0.00";
-      document.getElementById("timeFilteredResultBox3").textContent = "0.00";
-    }
-
-    // Renamed from clearLogOnly to clearAll for clarity
-    function clearLogOnly() {
-      document.getElementById("logInput").value = "";
-      document.getElementById("timeFilteredResult").textContent = "0.00";
-      document.getElementById("timeFilteredResultNo88").textContent = "0.00";
-      document.getElementById("timeFilteredResultBox3").textContent = "0.00";
-    }
-
-    function getDate(prefix) {
-      const input = document.getElementById(prefix + "DateTime");
-      if (!input.value) return null; // Handle empty date
+    // Helper to get a date object from a quarter/type pair ID
+    function getDate(quarter, type) {
+      // Handles both single-quarter (quarter="start", type="") and multi-quarter (quarter="q1", type="Start")
+      const input = document.getElementById(`${quarter}${type}DateTime`);
+      if (!input || !input.value) return null; // Handle empty date
       return new Date(input.value);
     }
-
+    
+    // Function to parse the date from the log line
     function parseDate(line) {
-      // Original regex: matches formats like "Oct 25, 2025, 1:30 pm"
+      // Regex matches common log date formats like "Oct 25, 2025, 1:30 pm"
       const match = line.match(/([A-Za-z]{2,}) (\d{1,2}),\s*(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)/i);
       if (!match) return null;
-      
+            
       const [ , monthStr, day, year, hourStr, minuteStr, ampm ] = match;
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      
-      // Levenshtein distance function to find closest month
+            
+      // Levenshtein distance function for fuzzy month matching (retained from original)
       function levenshtein(a, b) {
         const dp = Array.from({length: b.length + 1}, (_, i) => [i]);
         dp[0] = Array.from({length: a.length + 1}, (_, j) => j);
@@ -248,65 +401,105 @@
             bestIndex = idx;
           }
         });
-        // Allow up to 2 "typos" in the month name
         return bestScore <= 2 ? bestIndex : -1;
       }
 
       const monthIndex = getClosestMonthIndex(monthStr);
-      if (monthIndex === -1) return null; // Failed to parse month
-      
+      if (monthIndex === -1) return null; 
+            
       let hour = parseInt(hourStr);
       const minute = parseInt(minuteStr);
-      
+            
       if (ampm.toLowerCase() === "pm" && hour !== 12) hour += 12;
       if (ampm.toLowerCase() === "am" && hour === 12) hour = 0; // 12 AM is 00:00
-      
+            
       return new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
     }
 
-    function calculateAndCopy() {
-        // Run the calculation first
-        calculateNetTimeFiltered();
-        // Then copy the result of the first box
-        copyToClipboard('timeFilteredResult');
+
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).textContent.trim();
+      // Use the clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+              // Optional: Add a visual cue
+              const el = document.getElementById(id);
+              const originalColor = el.style.backgroundColor;
+              el.style.backgroundColor = '#d1e7dd'; 
+              setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
+          }).catch(err => {
+              console.error('Failed to copy text: ', err);
+              fallbackCopyTextToClipboard(text); 
+          });
+      } else {
+          fallbackCopyTextToClipboard(text); 
+      }
     }
 
-    function calculateNetTimeFiltered() {
-      const logLines = document.getElementById("logInput").value.trim().split("\n");
-      const start = getDate("start");
-      const end = getDate("end");
+    // Fallback for non-navigator.clipboard environments
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position="fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.width = "2em";
+        textArea.style.height = "2em";
+        textArea.style.padding = "0";
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // --- Single-Quarter Logic (Index 2) ---
+
+    // Renamed function to calculate the single-quarter results
+    function calculateNetSingleQuarter(showAlerts = false) {
+      const logLines = document.getElementById(LOG_ID_SINGLE).value.trim().split("\n");
+      const start = getDate("start", ""); // Uses 'startDateTime'
+      const end = getDate("end", "");   // Uses 'endDateTime'
 
       // Check for valid dates
       if (!start || !end) {
-          // Changed to use a custom message box or console log instead of alert()
+          if (showAlerts) alert("Please select both a Start Time and an End Time for the single-quarter tool.");
           console.error("Please select both a Start Time and an End Time.");
-          return;
+          return false;
       }
       if (start > end) {
-          // Changed to use a custom message box or console log instead of alert()
+          if (showAlerts) alert("Start Time must be before End Time.");
           console.error("Start Time must be before End Time.");
-          return;
+          return false;
       }
 
-      let totalBox1 = 0;   // New Default: Excludes ALL .99
-      let totalBox2 = 0;   // New Stricter: Excludes ALL .99 AND ALL .88
-      let totalBox3 = 0;   // Original Default: Excludes .99 < 100
+      let totalBox1 = 0;   
+      let totalBox2 = 0;   
+      let totalBox3 = 0;   
 
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
-        
+                
         // Check if date is valid and within the selected range
         if (date && date >= start && date <= end) {
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
-          
+                    
           const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
           const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
 
           if (grossMatch && netMatch) {
             const gross = parseFloat(grossMatch[1]);
             const net = parseFloat(netMatch[1]);
-            
+                        
             const is99 = gross.toFixed(2).endsWith(".99");
             const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
@@ -315,7 +508,7 @@
             if (!is99) {
               totalBox1 += net;
             }
-            
+                        
             // Box 2 Total (New Stricter): exclude ALL .99 AND ALL .88
             if (!is99 && !is88) {
               totalBox2 += net;
@@ -328,11 +521,273 @@
           }
         }
       }
-      
+            
       document.getElementById("timeFilteredResult").textContent = totalBox1.toFixed(2);
       document.getElementById("timeFilteredResultNo88").textContent = totalBox2.toFixed(2);
       document.getElementById("timeFilteredResultBox3").textContent = totalBox3.toFixed(2);
+      
+      return true;
     }
+
+    function calculateAndCopy() {
+        // Run the calculation first
+        const success = calculateNetSingleQuarter(true);
+        if (success) {
+            // Then copy the result of the first box
+            copyToClipboard('timeFilteredResult');
+        }
+    }
+
+    function clearAllSingleQuarter() {
+      document.getElementById(LOG_ID_SINGLE).value = "";
+      document.getElementById("startDateTime").value = "";
+      document.getElementById("endDateTime").value = "";
+      document.getElementById("timeFilteredResult").textContent = "0.00";
+      document.getElementById("timeFilteredResultNo88").textContent = "0.00";
+      document.getElementById("timeFilteredResultBox3").textContent = "0.00";
+    }
+
+    // --- Multi-Quarter Logic (Index 1) ---
+
+    // Function to calculate all 12 totals (4 quarters * 3 boxes)
+    function calculateNetMultiQuarter(showAlerts = false) {
+      const logLines = document.getElementById(LOG_ID_MULTI).value.trim().split("\n");
+            
+      // 1. Collect and validate all quarter ranges
+      const quarterRanges = {};
+      let hasValidRange = false;
+
+      QUARTERS.forEach(q => {
+          const start = getDate(q, 'Start');
+          const end = getDate(q, 'End');
+                    
+          quarterRanges[q] = { start: null, end: null, valid: false };
+
+          if (start && end) {
+              if (start <= end) {
+                  quarterRanges[q].start = start;
+                  quarterRanges[q].end = end;
+                  quarterRanges[q].valid = true;
+                  hasValidRange = true;
+              } else {
+                   console.error(`Error in ${q}: Start Time must be before End Time.`);
+              }
+          }
+      });
+
+      // Check for at least one valid time range
+      if (!hasValidRange) {
+          if (showAlerts) {
+            alert("Please set valid Start and End times for at least one Quarter in the Multi-Quarter tool.");
+          }
+          return false; // Indicate failure to proceed
+      }
+
+      // 2. Initialize 4 sets of 3 totals (12 totals total)
+      const allQuarterTotals = {
+        q1: { box1: 0, box2: 0, box3: 0 },
+        q2: { box1: 0, box2: 0, box3: 0 },
+        q3: { box1: 0, box2: 0, box3: 0 },
+        q4: { box1: 0, box2: 0, box3: 0 },
+      };
+
+      // 3. Loop through logs and assign to the correct quarter
+      for (let i = 0; i < logLines.length; i++) {
+        const date = parseDate(logLines[i]);
+                
+        let targetQuarter = null;
+
+        if (date) {
+            // Check if the log date falls into ANY of the valid quarter ranges
+            for (const q of QUARTERS) {
+                const range = quarterRanges[q];
+                if (range.valid && date >= range.start && date <= range.end) {
+                    targetQuarter = q;
+                    break; // Assign to the first quarter it matches
+                }
+            }
+        }
+                
+        // Only process the line if it was assigned to a quarter
+        if (targetQuarter) {
+          // Look ahead 1 line for Gross and 3 lines for Net
+          const grossLine = logLines[i + 1];
+          const netLine = logLines[i + 3];
+                    
+          const grossMatch = grossLine?.match(/\$(\d+\.\d{2})/);
+          const netMatch = netLine?.match(/\$(\d+\.\d{2})$/);
+
+          if (grossMatch && netMatch) {
+            const gross = parseFloat(grossMatch[1]);
+            const net = parseFloat(netMatch[1]);
+                        
+            const is99 = gross.toFixed(2).endsWith(".99");
+            const is88 = gross.toFixed(2).endsWith(".88");
+            const under100 = gross < 100;
+                        
+            const totals = allQuarterTotals[targetQuarter];
+
+            // Box 1 Total (Default): exclude ALL .99
+            if (!is99) {
+              totals.box1 += net;
+            }
+                        
+            // Box 2 Total (Stricter): exclude ALL .99 AND ALL .88
+            if (!is99 && !is88) {
+              totals.box2 += net;
+            }
+
+            // Box 3 Total (Original): exclude .99 under $100 only
+            if (!(is99 && under100)) {
+              totals.box3 += net;
+            }
+          }
+        }
+      }
+
+      // 4. Update the 16 HTML output elements
+      QUARTERS.forEach(q => {
+          const totals = allQuarterTotals[q];
+                    
+          // Update Minimal Boxes (Q1 B1, Q2 B1, etc.)
+          document.getElementById(`${q}TimeFilteredResult`).textContent = totals.box1.toFixed(2);
+                    
+          // Update Detailed Table Box 1 row (duplicate of above)
+          document.getElementById(`${q}TableResult`).textContent = totals.box1.toFixed(2);
+                    
+          // Update Detailed Table Box 2 & 3 rows
+          document.getElementById(`${q}TimeFilteredResultNo88`).textContent = totals.box2.toFixed(2);
+          document.getElementById(`${q}TimeFilteredResultBox3`).textContent = totals.box3.toFixed(2);
+      });
+            
+      return true; // Indicate success
+    }
+
+    function calculateAndCopySelected() {
+      // 1. Run the calculation for all quarters
+      const calculationSuccessful = calculateNetMultiQuarter(true); 
+
+      if (!calculationSuccessful) return;
+
+      // 2. Perform the copy action immediately after
+      const select = document.getElementById('copyQuarterSelect');
+      const quarter = select.value;       
+      const elementId = `${quarter}TimeFilteredResult`;             
+      
+      // Use a short timeout to ensure the DOM update is fully processed before trying to read the value
+      setTimeout(() => {
+          const resultText = document.getElementById(elementId).textContent.trim();
+                    
+          if (resultText === '0.00') {
+              alert(`Calculation completed, but the result for ${select.options[select.selectedIndex].text} is 0.00. Please check your logs/inputs. Nothing was copied.`);
+              return;
+          }
+                    
+          copyToClipboard(elementId);
+      }, 50); // Small delay to ensure DOM is updated
+    }
+
+    function toggleDetailedTable() {
+      const table = document.getElementById('detailedTable');
+      table.classList.toggle('hidden');
+    }
+
+    function toggleQuarterInputs() {
+      const container = document.getElementById('quarterInputContainer');
+      const button = document.getElementById('toggleQuartersBtn');
+                
+      container.classList.toggle('hidden');
+                
+      if (container.classList.contains('hidden')) {
+          button.textContent = 'Show Dates';
+          button.classList.remove('btn-gray');
+          button.classList.add('btn-blue');
+      } else {
+          button.textContent = 'Hide Dates';
+          button.classList.remove('btn-blue');
+          button.classList.add('btn-gray'); 
+      }
+    }
+
+    function clearAllMultiQuarter() {
+      document.getElementById(LOG_ID_MULTI).value = ""; // Clear its own log
+            
+      // Clear all 8 Quarter time inputs and 16 result elements
+      QUARTERS.forEach(q => {
+          document.getElementById(`${q}StartDateTime`).value = "";
+          document.getElementById(`${q}EndDateTime`).value = "";
+                    
+          // Clear Minimal Boxes
+          document.getElementById(`${q}TimeFilteredResult`).textContent = "0.00";
+          // Clear Table Boxes (Box 2 & 3)
+          document.getElementById(`${q}TimeFilteredResultNo88`).textContent = "0.00";
+          document.getElementById(`${q}TimeFilteredResultBox3`).textContent = "0.00";
+          // Clear Table Box 1 duplicate
+          document.getElementById(`${q}TableResult`).textContent = "0.00";
+      });
+      // Ensure detailed table is hidden
+      document.getElementById('detailedTable').classList.add('hidden');
+    }
+
+    // --- Secret Toggle Logic ---
+    
+    // Core function to swap tool blocks
+    function toggleMultiQuarterMode() {
+        const multi = document.getElementById('multiQuarterBlock');
+        const single = document.getElementById('singleQuarterBlock'); 
+        
+        // This function will either show/hide and vice-versa
+        if (multi.style.display === 'none' || multi.style.display === '') {
+            // Switch to Multi-Quarter Mode
+            multi.style.display = 'block';
+            single.style.display = 'none';
+        } else {
+            // Switch back to Single-Quarter Mode
+            multi.style.display = 'none';
+            single.style.display = 'block'; 
+        }
+    }
+
+    // Handler for the 'F' trigger (Single -> Multi)
+    function handleSecretFClick() {
+        clickCountF++;
+        
+        if (clickCountF >= REQUIRED_CLICKS) {
+            toggleMultiQuarterMode(); // Show Multi, Hide Single
+            clickCountF = 0; // Reset F counter
+            clickCountQ = 0; // Reset Q counter just in case
+        }
+    }
+
+    // Handler for the 'Q' trigger (Multi -> Single)
+    function handleSecretQClick() {
+        // Only count if the Multi-Quarter Block is currently visible
+        const multi = document.getElementById('multiQuarterBlock');
+        if (multi.style.display === 'block') {
+            clickCountQ++;
+            
+            if (clickCountQ >= REQUIRED_CLICKS) {
+                toggleMultiQuarterMode(); // Hide Multi, Show Single
+                clickCountQ = 0; // Reset Q counter
+                clickCountF = 0; // Reset F counter just in case
+            }
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Attach listener for the 'F' trigger (in Single-Quarter title)
+        const triggerF = document.getElementById('secretFTrigger');
+        if (triggerF) {
+            triggerF.addEventListener('click', handleSecretFClick);
+        }
+        
+        // 2. Attach listener for the 'Q' trigger (in Multi-Quarter title)
+        const triggerQ = document.getElementById('secretQTrigger');
+        if (triggerQ) {
+            triggerQ.addEventListener('click', handleSecretQClick);
+        }
+    });
+
   </script>
 </body>
 </html>
