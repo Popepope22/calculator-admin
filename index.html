@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,37 +100,67 @@
         border-top: 2px solid var(--border-color);
     }
     .hidden { display: none !important; }
-        /* --- Multi-Quarter Styles --- */
+    
+    /* --- Multi-Quarter Styles (Minimized) --- */
     .minimal-output-grid {
         display: flex;
         justify-content: space-around;
-        gap: 1rem;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
+        gap: 0.5rem; /* Reduced gap */
+        margin-top: 1.5rem; /* Reduced margin */
+        padding-top: 1rem; /* Reduced padding */
         border-top: 2px solid var(--primary);
+        flex-wrap: wrap; /* Allows wrapping on very small screens */
     }
     .minimal-output-grid > div {
         flex: 1;
         text-align: center;
-        min-width: 0;
+        min-width: 20%; /* Setting a lower min-width for better shrinkage */
     }
     .minimal-output-grid h4 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.2rem;
+        margin: 0 0 0.25rem 0; /* Reduced margin */
+        font-size: 1rem; /* Reduced font size */
         color: var(--primary);
     }
     .minimal-box {
       background: #e0e0e0;
-      padding: 1rem 0.5rem;
+      padding: 0.75rem 0.25rem; /* Reduced padding */
       border-radius: var(--radius);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1.25rem;
+      font-size: 1.1rem; /* Reduced font size */
       font-weight: 700;
-      white-space: normal; /* Changed to normal to allow wrapping if needed */
+      white-space: normal; 
       word-break: break-all;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
       cursor: pointer;
      }
+
+    /* Total Net Container (Re-added and minimized) */
+    .total-net-container {
+        margin-top: 1.5rem;
+        text-align: center;
+        width: 100%;
+        padding: 0.75rem; /* Slightly reduced padding */
+        border: 2px solid var(--btn-green);
+        border-radius: var(--radius);
+        background-color: #f1f8e9; /* Very light green background */
+    }
+    .total-net-container h4 {
+        color: var(--btn-green); 
+        font-size: 1.25rem; /* Slightly reduced font size */
+        margin-top: 0;
+        margin-bottom: 0.5rem; /* Slightly reduced margin */
+    }
+    .total-minimal-box {
+        background: #ccff90; /* Light green background */
+        box-shadow: 0 0 8px rgba(0, 150, 0, 0.4);
+        font-size: 1.4rem; /* Slightly reduced font size */
+        padding: 0.75rem 0.5rem; /* Slightly reduced padding */
+        font-weight: 800;
+        height: auto;
+        display: block; 
+    }
+    
+    /* Detailed Table & Inputs (Original Styles Maintained) */
     .detailed-table-container {
         margin-top: 2rem;
         padding: 1rem;
@@ -241,9 +270,12 @@
       <label for="timePresetSelect" style="display: block; font-size: 1.1rem; font-weight: 700; margin-top: 0.5rem;">2. Load Shift Presets (2-Hour Blocks):</label>
       <select id="timePresetSelect" onchange="loadPresets(this.value)" style="margin-top: 0.25rem;">
         <option value="">-- Select a Shift Pattern --</option>
-        <option value="shift1">Shift 1 (5:01AM - 1:00PM)</option>
-        <option value="shift2">Shift 2 (1:01PM - 9:00PM)</option>
-        <option value="shift3">Shift 3 (9:01PM - 5:00AM)</option>
+        <option value="bst-shift1">BST - Shift 1 (5:01AM - 1:00PM)</option>
+        <option value="bst-shift2">BST - Shift 2 (1:01PM - 9:00PM)</option>
+        <option value="bst-shift3">BST - Shift 3 (9:01PM - 5:00AM)</option>
+        <option value="pht-shift1">PHT - Shift 1 (1:01PM - 9:00PM)</option>
+        <option value="pht-shift2">PHT - Shift 2 (9:01PM - 5:00AM)</option>
+        <option value="pht-shift3">PHT - Shift 3 (5:01AM - 1:00PM)</option>
       </select>
     </div>
     
@@ -320,7 +352,11 @@
         <div id="q4TimeFilteredResult" class="minimal-box" onclick="copyToClipboard('q4TimeFilteredResult')">0.00</div>
       </div>
     </div>
-
+    
+    <div class="total-net-container">
+        <h4>TOTAL NET</h4>
+        <div id="totalNetResult" class="minimal-box total-minimal-box" onclick="copyToClipboard('totalNetResult')">0.00</div>
+    </div>
     <div class="detailed-table-container">
       <button class="btn btn-gray btn-flow" onclick="toggleDetailedTable()">Toggle Detailed Results (Box 2 & 3)</button>
       <div id="detailedTable" class="hidden">
@@ -378,23 +414,41 @@
     // --- Shift Preset Data (Time Definitions Only) ---
     // Time defined as [Start Hour, Start Minute, End Hour, End Minute] (24-hour format)
     const SHIFT_PRESETS = {
-        "shift1": [
+        "bst-shift1": [
             [5, 1, 7, 0],   // Q1: 05:01 - 07:00
             [7, 1, 9, 0],   // Q2: 07:01 - 09:00
             [9, 1, 11, 0],  // Q3: 09:01 - 11:00
             [11, 1, 13, 0]  // Q4: 11:01 - 13:00 (1:00PM)
         ],
-        "shift2": [
+        "bst-shift2": [
             [13, 1, 15, 0], // Q1: 13:01 - 15:00 (1:01PM - 3:00PM)
             [15, 1, 17, 0], // Q2: 15:01 - 17:00 (3:01PM - 5:00PM)
             [17, 1, 19, 0], // Q3: 17:01 - 19:00 (5:01PM - 7:00PM)
             [19, 1, 21, 0]  // Q4: 19:01 - 21:00 (7:01PM - 9:00PM)
         ],
-        "shift3": [
+        "bst-shift3": [
             [21, 1, 23, 0], // Q1: 21:01 - 23:00 (9:01PM - 11:00PM)
             [23, 1, 1, 0],  // Q2: 23:01 - 01:00 (11:01PM - 1:00AM)
             [1, 1, 3, 0],   // Q3: 01:01 - 03:00 (1:01AM - 3:00AM)
             [3, 1, 5, 0]    // Q4: 03:01 - 05:00 (3:01AM - 5:00AM)
+        ],
+        "pht-shift1": [
+            [13, 1, 15, 0], // Q1: 1:01PM - 3:00PM
+            [15, 1, 17, 0], // Q2: 3:01PM - 5:00PM
+            [17, 1, 19, 0], // Q3: 5:01PM - 7:00PM
+            [19, 1, 21, 0]  // Q4: 7:01PM - 9:00PM
+        ],
+        "pht-shift2": [
+            [21, 1, 23, 0], // Q1: 9:01PM - 11:00PM
+            [23, 1, 1, 0],  // Q2: 11:01PM - 1:00AM (Next Day)
+            [1, 1, 3, 0],   // Q3: 1:01AM - 3:00AM (Next Day)
+            [3, 1, 5, 0]    // Q4: 3:01AM - 5:00AM (Next Day)
+        ],
+        "pht-shift3": [
+            [5, 1, 7, 0],   // Q1: 5:01AM - 7:00AM (Next Day)
+            [7, 1, 9, 0],   // Q2: 7:01AM - 9:00AM (Next Day)
+            [9, 1, 11, 0],  // Q3: 9:01AM - 11:00AM (Next Day)
+            [11, 1, 13, 0]  // Q4: 11:01AM - 1:00PM (Next Day)
         ]
     };
 
@@ -474,7 +528,15 @@
               // Optional: Add a visual cue
               const el = document.getElementById(id);
               const originalColor = el.style.backgroundColor;
-              el.style.backgroundColor = '#d1e7dd'; 
+              
+              const isTotal = id === 'totalNetResult';
+              
+              if (isTotal) {
+                el.style.backgroundColor = '#a5d6a7'; // Darker green for total copy
+              } else {
+                el.style.backgroundColor = '#d1e7dd'; 
+              }
+              
               setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
           }).catch(err => {
               console.error('Failed to copy text: ', err);
@@ -583,7 +645,7 @@
       document.getElementById("timeFilteredResultBox3").textContent = "0.00";
     }
 
-    // --- Multi-Quarter Preset Logic (CORRECTED) ---
+    // --- Multi-Quarter Preset Logic (UPDATED FOR PHT) ---
 
     // Helper function to clear *only* the quarter date inputs
     function clearAllQuarterInputs() {
@@ -619,44 +681,51 @@
         baseDate.setHours(0, 0, 0, 0); // Normalize to start of day
 
         const preset = SHIFT_PRESETS[presetKey];
+        const isPHT = presetKey.startsWith('pht');
 
         QUARTERS.forEach((q, index) => {
             const [startH, startM, endH, endM] = preset[index];
 
-            // 1. Calculate Start Date/Time
+            // Start with the base date
             let startDate = new Date(baseDate);
-            startDate.setHours(startH, startM, 0, 0);
-
-            // 2. Calculate End Date/Time
             let endDate = new Date(baseDate);
+
+            // Set the quarter times on the base date
+            startDate.setHours(startH, startM, 0, 0);
             endDate.setHours(endH, endM, 0, 0);
+
+            // --- Day Rollover Logic ---
             
-            // --- CORRECTION LOGIC START ---
-            
-            // Check if the END hour is LESS than the START hour within the QUARTER definition.
-            // This is the definitive indicator of a crossover in the 2-hour block (e.g., 23:01 -> 01:00)
+            // 1. Check for crossover within the quarter itself (e.g., 23:01 to 01:00)
             if (endH < startH) {
                  endDate.setDate(endDate.getDate() + 1);
             }
 
-            // For Shift 3, if the quarter index is 1 (Q2) or higher, the entire quarter should be on the next day.
-            // The Start of Q2 (23:01) is on the Base Date, but the End is the next day.
-            // Q3 and Q4 start AND end on the next day.
+            // 2. Adjustments specific to PHT Shifts: PHT shifts are calculated relative to the BST equivalent
+            // PHT Shift 2 (9:01 PM - 5:00 AM) and PHT Shift 3 (5:01 AM - 1:00 PM) cross the Base Date.
 
-            // If it's SHIFT 3:
-            if (presetKey === 'shift3') {
-                // Q2: Start is Base Date, End is Base Date + 1 (already handled by endH < startH check)
-                if (index > 1) { // Q3 (index 2) and Q4 (index 3)
-                    // For Q3 and Q4, the entire quarter starts and ends on the next day relative to the Base Date.
+            if (isPHT) {
+                if (presetKey === 'pht-shift2') {
+                    // Q1 (9:01PM - 11:00PM) is on the base date.
+                    // Q2, Q3, Q4 start on the base date but end the next day, or start/end entirely on the next day.
+                    
+                    if (index >= 1) { // Q2 (index 1) has 23:01 start, which is handled by endH < startH for end date.
+                       // Q3 and Q4 start/end entirely on the next day relative to the *shift*.
+                    }
+                    
+                    // The standard rollover logic handles Q2.
+                    // Q3 and Q4 (1:01 AM onwards) are entirely on the next day relative to the Base Date.
+                    if (index >= 2) { 
+                        startDate.setDate(startDate.getDate() + 1);
+                        endDate.setDate(endDate.getDate() + 1);
+                    }
+                } else if (presetKey === 'pht-shift3') {
+                    // All quarters in PHT Shift 3 (5:01 AM - 1:00 PM) start and end on the day *after* the base date.
                     startDate.setDate(startDate.getDate() + 1);
                     endDate.setDate(endDate.getDate() + 1);
-                } else if (index === 1) { // Q2
-                    // The start time (23:01) must remain on the Base Date.
-                    // The end time (01:00) must be Base Date + 1 (handled by endH < startH check).
                 }
-
             } 
-            // --- CORRECTION LOGIC END ---
+            // --- Day Rollover Logic End ---
 
             // 3. Apply to Inputs
             document.getElementById(`${q}StartDateTime`).value = formatDateTimeLocal(startDate);
@@ -665,7 +734,7 @@
     }
 
 
-    // --- Multi-Quarter Calculation and Clear Logic (Original) ---
+    // --- Multi-Quarter Calculation and Clear Logic (Updated to include Grand Total) ---
     function calculateNetMultiQuarter(showAlerts = false) {
       const logLines = document.getElementById(LOG_ID_MULTI).value.trim().split("\n");
 
@@ -703,6 +772,8 @@
         q3: { box1: 0, box2: 0, box3: 0 },
         q4: { box1: 0, box2: 0, box3: 0 },
       };
+      
+      let grandTotalBox1 = 0; // Initialize grand total
 
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
@@ -753,11 +824,17 @@
 
       QUARTERS.forEach(q => {
           const totals = allQuarterTotals[q];
+          
+          grandTotalBox1 += totals.box1; // Accumulate grand total for Box 1
+
           document.getElementById(`${q}TimeFilteredResult`).textContent = totals.box1.toFixed(2);
           document.getElementById(`${q}TableResult`).textContent = totals.box1.toFixed(2);
           document.getElementById(`${q}TimeFilteredResultNo88`).textContent = totals.box2.toFixed(2);
           document.getElementById(`${q}TimeFilteredResultBox3`).textContent = totals.box3.toFixed(2);
       });
+      
+      // Update the TOTAL box
+      document.getElementById('totalNetResult').textContent = grandTotalBox1.toFixed(2);
 
       return true;
     }
@@ -817,6 +894,10 @@
           document.getElementById(`${q}TimeFilteredResultBox3`).textContent = "0.00";
           document.getElementById(`${q}TableResult`).textContent = "0.00";
       });
+      
+      // Clear the Total box
+      document.getElementById('totalNetResult').textContent = "0.00";
+      
       document.getElementById('detailedTable').classList.add('hidden');
     }
     // --- Secret Toggle Logic ---        
