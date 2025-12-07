@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +27,7 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       /* Stable Christmas Bokeh Background */
-      background: #fdfdfd url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Christmas_Lights_Bokeh.jpg') no-repeat center center fixed;
+      background: #fdfdfd url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Christmas_Lights_Bokeh.jpg') no-repeat center center fixed; 
       background-size: cover;
       color: var(--text-color);
       padding: 2rem;
@@ -36,7 +37,7 @@
       min-height: 100vh;
     }
     h1, h2 { text-align: center; color: var(--primary); text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8); }
-    textarea, select, input[type="datetime-local"], button {
+    textarea, select, input[type="datetime-local"], input[type="date"], button {
       width: 100%; padding: 0.75rem; font-size: 1rem;
       margin-top: 1rem; border-radius: var(--radius);
       border: 1px solid var(--border-color);
@@ -45,7 +46,7 @@
     /* General button style (resetting margins for compact layout) */
     .btn {
       color: white; border: none;
-      margin: 0;
+      margin: 0; 
       cursor: pointer;
       transition: background-color 0.3s ease;
       font-weight: 600;
@@ -91,7 +92,7 @@
     }
     .output-container {
         margin-top: 1.5rem;
-        border-top: 2px solid var(--border-color);
+        border-top: 2px solid var(--border-color); 
         padding-top: 1rem;
     }
     .clear-btn-container {
@@ -100,8 +101,7 @@
         border-top: 2px solid var(--border-color);
     }
     .hidden { display: none !important; }
-
-    /* --- Multi-Quarter Styles --- */
+        /* --- Multi-Quarter Styles --- */
     .minimal-output-grid {
         display: flex;
         justify-content: space-around;
@@ -120,21 +120,18 @@
         font-size: 1.2rem;
         color: var(--primary);
     }
-    /* --- START MODIFICATION FOR SMALLER, WRAPPING BOXES --- */
     .minimal-box {
       background: #e0e0e0;
-      padding: 0.5rem; /* Reduced padding for a smaller box */
+      padding: 1rem 0.5rem;
       border-radius: var(--radius);
       font-family: 'Courier New', Courier, monospace;
-      font-size: 1.1rem; /* Reduced font size to fit more text */
+      font-size: 1.25rem;
       font-weight: 700;
-      white-space: normal; /* ALLOW wrapping */
-      word-break: break-all; /* Ensures long numbers break instead of just words */
-      /* Removed: overflow: hidden; and text-overflow: ellipsis; */
+      white-space: normal; /* Changed to normal to allow wrapping if needed */
+      word-break: break-all;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
       cursor: pointer;
      }
-    /* --- END MODIFICATION --- */
     .detailed-table-container {
         margin-top: 2rem;
         padding: 1rem;
@@ -235,6 +232,21 @@
   <div class="tool-block" id="multiQuarterBlock" style="display: none; margin-top: 2rem;">
     <h2>Multi-<span id="secretQTrigger" style="cursor: pointer;">Q</span>uarter Tools 🛠️</h2>
 
+    <div style="margin-top: 1rem; text-align: center; background-color: #e0f2f1; padding: 1rem; border-radius: 8px;">
+      <label for="baseDateInput" style="display: block; font-size: 1.1rem; color: #00796b; font-weight: 700; margin-top: 0;">1. Select Base Date for Shifts:</label>
+      <input type="date" id="baseDateInput" style="width: 50%; max-width: 200px; margin-top: 0.5rem; display: inline-block;" />
+    </div>
+
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+      <label for="timePresetSelect" style="display: block; font-size: 1.1rem; font-weight: 700; margin-top: 0.5rem;">2. Load Shift Presets (2-Hour Blocks):</label>
+      <select id="timePresetSelect" onchange="loadPresets(this.value)" style="margin-top: 0.25rem;">
+        <option value="">-- Select a Shift Pattern --</option>
+        <option value="shift1">Shift 1 (5:01AM - 1:00PM)</option>
+        <option value="shift2">Shift 2 (1:01PM - 9:00PM)</option>
+        <option value="shift3">Shift 3 (9:01PM - 5:00AM)</option>
+      </select>
+    </div>
+    
     <label for="logInputMulti">Paste Logs (Multi-Quarter):</label>
     <textarea id="logInputMulti" placeholder="Paste logs here..."></textarea>
 
@@ -363,25 +375,46 @@
     let clickCountF = 0;
     let clickCountQ = 0;
 
-    // --- Shared Helper Functions (Used by both tools) ---
+    // --- Shift Preset Data (Time Definitions Only) ---
+    // Time defined as [Start Hour, Start Minute, End Hour, End Minute] (24-hour format)
+    const SHIFT_PRESETS = {
+        "shift1": [
+            [5, 1, 7, 0],   // Q1: 05:01 - 07:00
+            [7, 1, 9, 0],   // Q2: 07:01 - 09:00
+            [9, 1, 11, 0],  // Q3: 09:01 - 11:00
+            [11, 1, 13, 0]  // Q4: 11:01 - 13:00 (1:00PM)
+        ],
+        "shift2": [
+            [13, 1, 15, 0], // Q1: 13:01 - 15:00 (1:01PM - 3:00PM)
+            [15, 1, 17, 0], // Q2: 15:01 - 17:00 (3:01PM - 5:00PM)
+            [17, 1, 19, 0], // Q3: 17:01 - 19:00 (5:01PM - 7:00PM)
+            [19, 1, 21, 0]  // Q4: 19:01 - 21:00 (7:01PM - 9:00PM)
+        ],
+        "shift3": [
+            [21, 1, 23, 0], // Q1: 21:01 - 23:00 (9:01PM - 11:00PM)
+            [23, 1, 1, 0],  // Q2: 23:01 - 01:00 (11:01PM - 1:00AM)
+            [1, 1, 3, 0],   // Q3: 01:01 - 03:00 (1:01AM - 3:00AM)
+            [3, 1, 5, 0]    // Q4: 03:01 - 05:00 (3:01AM - 5:00AM)
+        ]
+    };
+
+
+    // --- Shared Helper Functions ---
     // Helper to get a date object from a quarter/type pair ID
     function getDate(quarter, type) {
-      // Handles both single-quarter (quarter="start", type="") and multi-quarter (quarter="q1", type="Start")
       const input = document.getElementById(`${quarter}${type}DateTime`);
-      if (!input || !input.value) return null; // Handle empty date
+      if (!input || !input.value) return null;
       return new Date(input.value);
     }
 
     // Function to parse the date from the log line
     function parseDate(line) {
-      // Regex matches common log date formats like "Oct 25, 2025, 1:30 pm"
       const match = line.match(/([A-Za-z]{2,}) (\d{1,2}),\s*(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)/i);
       if (!match) return null;
 
       const [ , monthStr, day, year, hourStr, minuteStr, ampm ] = match;
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-      // Levenshtein distance function for fuzzy month matching (retained from original)
       function levenshtein(a, b) {
         const dp = Array.from({length: b.length + 1}, (_, i) => [i]);
         dp[0] = Array.from({length: a.length + 1}, (_, j) => j);
@@ -420,6 +453,18 @@
 
       return new Date(parseInt(year), monthIndex, parseInt(day), hour, minute);
     }
+    
+    // Helper function to format a Date object into the required 'YYYY-MM-DDThh:mm' format
+    function formatDateTimeLocal(date) {
+        if (!date || isNaN(date)) return "";
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        const h = date.getHours().toString().padStart(2, '0');
+        const min = date.getMinutes().toString().padStart(2, '0');
+        return `${y}-${m}-${d}T${h}:${min}`;
+    }
+
 
     function copyToClipboard(id) {
       const text = document.getElementById(id).textContent.trim();
@@ -429,7 +474,7 @@
               // Optional: Add a visual cue
               const el = document.getElementById(id);
               const originalColor = el.style.backgroundColor;
-              el.style.backgroundColor = '#d1e7dd';
+              el.style.backgroundColor = '#d1e7dd'; 
               setTimeout(() => { el.style.backgroundColor = originalColor; }, 300);
           }).catch(err => {
               console.error('Failed to copy text: ', err);
@@ -463,14 +508,12 @@
         }
         document.body.removeChild(textArea);
     }
-    // --- Single-Quarter Logic (Index 2) ---
-    // Renamed function to calculate the single-quarter results
+    // --- Single-Quarter Logic (Original) ---
     function calculateNetSingleQuarter(showAlerts = false) {
       const logLines = document.getElementById(LOG_ID_SINGLE).value.trim().split("\n");
-      const start = getDate("start", ""); // Uses 'startDateTime'
-      const end = getDate("end", "");   // Uses 'endDateTime'
+      const start = getDate("start", ""); 
+      const end = getDate("end", "");
 
-      // Check for valid dates
       if (!start || !end) {
           if (showAlerts) alert("Please select both a Start Time and an End Time for the single-quarter tool.");
           console.error("Please select both a Start Time and an End Time.");
@@ -482,14 +525,13 @@
           return false;
       }
 
-      let totalBox1 = 0;
-      let totalBox2 = 0;
-      let totalBox3 = 0;
+      let totalBox1 = 0;         
+      let totalBox2 = 0;         
+      let totalBox3 = 0;   
 
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
 
-        // Check if date is valid and within the selected range
         if (date && date >= start && date <= end) {
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
@@ -505,17 +547,14 @@
             const is88 = gross.toFixed(2).endsWith(".88");
             const under100 = gross < 100;
 
-            // Box 1 Total (New Default): exclude ALL .99
             if (!is99) {
               totalBox1 += net;
             }
 
-            // Box 2 Total (New Stricter): exclude ALL .99 AND ALL .88
             if (!is99 && !is88) {
               totalBox2 += net;
             }
 
-            // Box 3 Total (Original Default): exclude .99 under 100 only
             if (!(is99 && under100)) {
               totalBox3 += net;
             }
@@ -530,10 +569,8 @@
       return true;
     }
     function calculateAndCopy() {
-        // Run the calculation first
         const success = calculateNetSingleQuarter(true);
         if (success) {
-            // Then copy the result of the first box
             copyToClipboard('timeFilteredResult');
         }
     }
@@ -545,12 +582,93 @@
       document.getElementById("timeFilteredResultNo88").textContent = "0.00";
       document.getElementById("timeFilteredResultBox3").textContent = "0.00";
     }
-    // --- Multi-Quarter Logic (Index 1) ---
-    // Function to calculate all 12 totals (4 quarters * 3 boxes)
+
+    // --- Multi-Quarter Preset Logic (CORRECTED) ---
+
+    // Helper function to clear *only* the quarter date inputs
+    function clearAllQuarterInputs() {
+        QUARTERS.forEach(q => {
+            document.getElementById(`${q}StartDateTime`).value = "";
+            document.getElementById(`${q}EndDateTime`).value = "";
+        });
+    }
+
+    function loadPresets(presetKey) {
+        const baseDateInput = document.getElementById('baseDateInput');
+        const baseDateStr = baseDateInput.value;
+        
+        if (!baseDateStr) {
+            alert("Please select a Base Date first before choosing a Shift Pattern!");
+            clearAllQuarterInputs();
+            document.getElementById('timePresetSelect').value = "";
+            return;
+        }
+        if (!presetKey) {
+            clearAllQuarterInputs();
+            return;
+        }
+
+        const baseDate = new Date(baseDateStr); 
+
+        if (isNaN(baseDate)) {
+            alert("Invalid Base Date selected.");
+            document.getElementById('timePresetSelect').value = "";
+            clearAllQuarterInputs();
+            return;
+        }
+        baseDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+        const preset = SHIFT_PRESETS[presetKey];
+
+        QUARTERS.forEach((q, index) => {
+            const [startH, startM, endH, endM] = preset[index];
+
+            // 1. Calculate Start Date/Time
+            let startDate = new Date(baseDate);
+            startDate.setHours(startH, startM, 0, 0);
+
+            // 2. Calculate End Date/Time
+            let endDate = new Date(baseDate);
+            endDate.setHours(endH, endM, 0, 0);
+            
+            // --- CORRECTION LOGIC START ---
+            
+            // Check if the END hour is LESS than the START hour within the QUARTER definition.
+            // This is the definitive indicator of a crossover in the 2-hour block (e.g., 23:01 -> 01:00)
+            if (endH < startH) {
+                 endDate.setDate(endDate.getDate() + 1);
+            }
+
+            // For Shift 3, if the quarter index is 1 (Q2) or higher, the entire quarter should be on the next day.
+            // The Start of Q2 (23:01) is on the Base Date, but the End is the next day.
+            // Q3 and Q4 start AND end on the next day.
+
+            // If it's SHIFT 3:
+            if (presetKey === 'shift3') {
+                // Q2: Start is Base Date, End is Base Date + 1 (already handled by endH < startH check)
+                if (index > 1) { // Q3 (index 2) and Q4 (index 3)
+                    // For Q3 and Q4, the entire quarter starts and ends on the next day relative to the Base Date.
+                    startDate.setDate(startDate.getDate() + 1);
+                    endDate.setDate(endDate.getDate() + 1);
+                } else if (index === 1) { // Q2
+                    // The start time (23:01) must remain on the Base Date.
+                    // The end time (01:00) must be Base Date + 1 (handled by endH < startH check).
+                }
+
+            } 
+            // --- CORRECTION LOGIC END ---
+
+            // 3. Apply to Inputs
+            document.getElementById(`${q}StartDateTime`).value = formatDateTimeLocal(startDate);
+            document.getElementById(`${q}EndDateTime`).value = formatDateTimeLocal(endDate);
+        });
+    }
+
+
+    // --- Multi-Quarter Calculation and Clear Logic (Original) ---
     function calculateNetMultiQuarter(showAlerts = false) {
       const logLines = document.getElementById(LOG_ID_MULTI).value.trim().split("\n");
 
-      // 1. Collect and validate all quarter ranges
       const quarterRanges = {};
       let hasValidRange = false;
 
@@ -572,15 +690,13 @@
           }
       });
 
-      // Check for at least one valid time range
       if (!hasValidRange) {
           if (showAlerts) {
             alert("Please set valid Start and End times for at least one Quarter in the Multi-Quarter tool.");
           }
-          return false; // Indicate failure to proceed
+          return false;
       }
 
-      // 2. Initialize 4 sets of 3 totals (12 totals total)
       const allQuarterTotals = {
         q1: { box1: 0, box2: 0, box3: 0 },
         q2: { box1: 0, box2: 0, box3: 0 },
@@ -588,26 +704,22 @@
         q4: { box1: 0, box2: 0, box3: 0 },
       };
 
-      // 3. Loop through logs and assign to the correct quarter
       for (let i = 0; i < logLines.length; i++) {
         const date = parseDate(logLines[i]);
 
         let targetQuarter = null;
 
         if (date) {
-            // Check if the log date falls into ANY of the valid quarter ranges
             for (const q of QUARTERS) {
                 const range = quarterRanges[q];
                 if (range.valid && date >= range.start && date <= range.end) {
                     targetQuarter = q;
-                    break; // Assign to the first quarter it matches
+                    break;
                 }
             }
         }
 
-        // Only process the line if it was assigned to a quarter
         if (targetQuarter) {
-          // Look ahead 1 line for Gross and 3 lines for Net
           const grossLine = logLines[i + 1];
           const netLine = logLines[i + 3];
 
@@ -624,17 +736,14 @@
 
             const totals = allQuarterTotals[targetQuarter];
 
-            // Box 1 Total (Default): exclude ALL .99
             if (!is99) {
               totals.box1 += net;
             }
 
-            // Box 2 Total (Stricter): exclude ALL .99 AND ALL .88
             if (!is99 && !is88) {
               totals.box2 += net;
             }
 
-            // Box 3 Total (Original): exclude .99 under $100 only
             if (!(is99 && under100)) {
               totals.box3 += net;
             }
@@ -642,37 +751,27 @@
         }
       }
 
-      // 4. Update the 16 HTML output elements
       QUARTERS.forEach(q => {
           const totals = allQuarterTotals[q];
-
-          // Update Minimal Boxes (Q1 B1, Q2 B1, etc.)
           document.getElementById(`${q}TimeFilteredResult`).textContent = totals.box1.toFixed(2);
-
-          // Update Detailed Table Box 1 row (duplicate of above)
           document.getElementById(`${q}TableResult`).textContent = totals.box1.toFixed(2);
-
-          // Update Detailed Table Box 2 & 3 rows
           document.getElementById(`${q}TimeFilteredResultNo88`).textContent = totals.box2.toFixed(2);
           document.getElementById(`${q}TimeFilteredResultBox3`).textContent = totals.box3.toFixed(2);
       });
 
-      return true; // Indicate success
+      return true;
     }
 
     function calculateAndCopySelected() {
-      // 1. Run the calculation for all quarters
-      const calculationSuccessful = calculateNetMultiQuarter(true);
+      const calculationSuccessful = calculateNetMultiQuarter(true); 
 
       if (!calculationSuccessful) return;
 
-      // 2. Perform the copy action immediately after
       const select = document.getElementById('copyQuarterSelect');
       const quarter = select.value;
 
       const elementId = `${quarter}TimeFilteredResult`;
 
-      // Use a short timeout to ensure the DOM update is fully processed before trying to read the value
       setTimeout(() => {
           const resultText = document.getElementById(elementId).textContent.trim();
 
@@ -682,14 +781,12 @@
           }
 
           copyToClipboard(elementId);
-      }, 50); // Small delay to ensure DOM is updated
+      }, 50);
     }
-
     function toggleDetailedTable() {
       const table = document.getElementById('detailedTable');
       table.classList.toggle('hidden');
     }
-
     function toggleQuarterInputs() {
       const container = document.getElementById('quarterInputContainer');
       const button = document.getElementById('toggleQuartersBtn');
@@ -706,80 +803,61 @@
           button.classList.add('btn-gray');
        }
     }
-
     function clearAllMultiQuarter() {
-      document.getElementById(LOG_ID_MULTI).value = ""; // Clear its own log
+      document.getElementById(LOG_ID_MULTI).value = ""; 
+      document.getElementById('baseDateInput').value = ""; 
+      document.getElementById('timePresetSelect').value = ""; 
 
-      // Clear all 8 Quarter time inputs and 16 result elements
       QUARTERS.forEach(q => {
           document.getElementById(`${q}StartDateTime`).value = "";
           document.getElementById(`${q}EndDateTime`).value = "";
 
-          // Clear Minimal Boxes
           document.getElementById(`${q}TimeFilteredResult`).textContent = "0.00";
-          // Clear Table Boxes (Box 2 & 3)
           document.getElementById(`${q}TimeFilteredResultNo88`).textContent = "0.00";
           document.getElementById(`${q}TimeFilteredResultBox3`).textContent = "0.00";
-          // Clear Table Box 1 duplicate
           document.getElementById(`${q}TableResult`).textContent = "0.00";
       });
-      // Ensure detailed table is hidden
       document.getElementById('detailedTable').classList.add('hidden');
     }
-
-    // --- Secret Toggle Logic ---
-
-    // Core function to swap tool blocks
+    // --- Secret Toggle Logic ---        
     function toggleMultiQuarterMode() {
         const multi = document.getElementById('multiQuarterBlock');
-        const single = document.getElementById('singleQuarterBlock');
+        const single = document.getElementById('singleQuarterBlock'); 
 
-        // This function will either show/hide and vice-versa
         if (multi.style.display === 'none' || multi.style.display === '') {
-            // Switch to Multi-Quarter Mode
             multi.style.display = 'block';
             single.style.display = 'none';
         } else {
-            // Switch back to Single-Quarter Mode
             multi.style.display = 'none';
-            single.style.display = 'block';
+            single.style.display = 'block'; 
          }
     }
-
-    // Handler for the 'F' trigger (Single -> Multi)
     function handleSecretFClick() {
         clickCountF++;
-
         if (clickCountF >= REQUIRED_CLICKS) {
-            toggleMultiQuarterMode(); // Show Multi, Hide Single
-            clickCountF = 0; // Reset F counter
-            clickCountQ = 0; // Reset Q counter just in case
+            toggleMultiQuarterMode();
+            clickCountF = 0;
+            clickCountQ = 0;
         }
     }
-
-    // Handler for the 'Q' trigger (Multi -> Single)
     function handleSecretQClick() {
-        // Only count if the Multi-Quarter Block is currently visible
         const multi = document.getElementById('multiQuarterBlock');
         if (multi.style.display === 'block') {
             clickCountQ++;
-
             if (clickCountQ >= REQUIRED_CLICKS) {
-                toggleMultiQuarterMode(); // Hide Multi, Show Single
-                clickCountQ = 0; // Reset Q counter
-                clickCountF = 0; // Reset F counter just in case
+                toggleMultiQuarterMode();
+                clickCountQ = 0;
+                clickCountF = 0;
             }
         }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // 1. Attach listener for the 'F' trigger (in Single-Quarter title)
         const triggerF = document.getElementById('secretFTrigger');
         if (triggerF) {
             triggerF.addEventListener('click', handleSecretFClick);
         }
 
-        // 2. Attach listener for the 'Q' trigger (in Multi-Quarter title)
         const triggerQ = document.getElementById('secretQTrigger');
         if (triggerQ) {
             triggerQ.addEventListener('click', handleSecretQClick);
